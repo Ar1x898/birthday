@@ -1,6 +1,7 @@
 :root{
   --bg: #0b1020;
   --panel: rgba(255,255,255,0.06);
+  --panel2: rgba(255,255,255,0.08);
   --text: rgba(255,255,255,0.92);
   --muted: rgba(255,255,255,0.68);
   --accent: #7c5cff;
@@ -11,6 +12,8 @@
 
   --cake-w: min(560px, 92vw);
   --cake-h: 310px;
+
+  --sidebar-w: 340px;
 }
 
 *{ box-sizing: border-box; }
@@ -26,10 +29,19 @@ body{
   color: var(--text);
 }
 
-.app{
-  max-width: 980px;
+.layout{
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-w);
+  gap: 16px;
+  align-items: start;
+  padding: 18px 16px 26px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 22px 18px 40px;
+}
+
+.app{
+  padding: 4px 2px 14px;
 }
 
 .header{
@@ -52,6 +64,31 @@ body{
   margin: 0;
   color: var(--muted);
   line-height: 1.35;
+}
+
+.messagePreview{
+  margin: 14px auto 0;
+  max-width: 720px;
+  padding: 12px 12px;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.20);
+  text-align: left;
+}
+.messagePreviewLabel{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.messagePreviewText{
+  white-space: pre-wrap;
+  line-height: 1.35;
+  font-weight: 600;
+  color: rgba(255,255,255,0.88);
 }
 
 .controls{
@@ -84,6 +121,12 @@ body{
   border-color: rgba(255,255,255,0.18);
 }
 .btn:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+.btn.tiny{
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
 
 .control{
   display: grid;
@@ -149,7 +192,7 @@ body{
   filter: drop-shadow(0 18px 40px rgba(0,0,0,0.35));
 }
 
-/* Candle layout: wraps naturally so 17 looks good */
+/* Candle layout: wraps so 17 looks good */
 .candles{
   position: absolute;
   top: 6px;
@@ -211,12 +254,10 @@ body{
   transform-origin: 50% 85%;
   animation: flicker 0.12s infinite alternate ease-in-out;
 }
-
 @keyframes flicker{
   from{ transform: translateX(-50%) rotate(-6deg) scale(0.98); opacity: 0.9; }
   to  { transform: translateX(-50%) rotate(7deg) scale(1.02); opacity: 1; }
 }
-
 .candle.out .flame{ display: none; }
 
 .cake{
@@ -235,7 +276,6 @@ body{
   border-radius: 28px;
   border: 1px solid rgba(255,255,255,0.14);
 }
-
 .layer-top{
   width: 78%;
   height: 58px;
@@ -254,7 +294,6 @@ body{
   bottom: 0px;
   background: linear-gradient(180deg, rgba(255,79,216,0.45), rgba(255,79,216,0.14));
 }
-
 .icing{
   position: absolute;
   left: 50%;
@@ -266,7 +305,6 @@ body{
   background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.20));
   border: 1px solid rgba(255,255,255,0.16);
 }
-
 .drips{
   position: absolute;
   left: 50%;
@@ -282,7 +320,6 @@ body{
     radial-gradient(circle at 86% 0%, rgba(255,255,255,0.55) 0 18px, transparent 19px);
   opacity: 0.9;
 }
-
 .plate{
   position: absolute;
   left: 50%;
@@ -309,4 +346,138 @@ body{
   margin: 0;
   font-size: 12px;
   opacity: 0.85;
+}
+
+/* Sidebar */
+.sidebar{
+  position: sticky;
+  top: 18px;
+  align-self: start;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px var(--shadow);
+  overflow: hidden;
+}
+
+.sidebarHeader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+}
+.sidebarTitle{
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+.sidebarBody{
+  padding: 12px;
+}
+
+.tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tabBtn{
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 10px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+}
+.tabBtn.active{
+  background: linear-gradient(135deg, rgba(124,92,255,0.65), rgba(255,79,216,0.42));
+  border-color: rgba(255,255,255,0.18);
+}
+
+.tabPanel{ display: none; }
+.tabPanel.active{ display: block; }
+
+.fieldLabel{
+  display: block;
+  margin: 8px 0 6px;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.textarea{
+  width: 100%;
+  resize: vertical;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  color: var(--text);
+  padding: 10px 10px;
+  outline: none;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.textarea:focus{
+  border-color: rgba(255,255,255,0.22);
+}
+
+.fileInput{
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+  color: var(--text);
+}
+
+.row{
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.row .btn{
+  flex: 1;
+}
+
+.microHint{
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.60);
+  line-height: 1.35;
+}
+
+.photoGrid{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.thumb{
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  aspect-ratio: 1 / 1;
+}
+.thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 1020px){
+  .layout{
+    grid-template-columns: 1fr;
+  }
+  .sidebar{
+    position: relative;
+    top: auto;
+  }
 }
