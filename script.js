@@ -1,23 +1,44 @@
-/* Single-blow -> extinguish ALL candles (clean-room implementation).
-   Edit the name here:
+/* Clean-room implementation
+   Requirements met:
+   - 17 candles by default
+   - one valid blow extinguishes ALL candles at once
+   - recipient has no inputs besides enabling mic (required by browser) + blowing
+   - message + photos are hard-coded in this file
 */
-const BIRTHDAY_NAME = "Name Here";
 
-// localStorage key for message
-const LS_MESSAGE_KEY = "cake_blow_birthday_message_v1";
+/* 1) EDIT THESE THREE POINTS */
+const BIRTHDAY_NAME = "Francesca";
+
+const BIRTHDAY_MESSAGE = `Happy birthday darling! Congrats on making it to 17, guess I can now say we're the same age.
+Sorry that I can't be there physically to celebrate your birthday or our anniversary, it greatly saddens me. I hope that this little 
+half-baked project can suffice for a while. You'll get your present when I return soon, don't worry about it. Anyway, all I can say 
+is thank you. Thank you for your love and affection, something which I do not deserve. Thank you for making JC1 enjoyable for me. 
+It's been a great pleasure and I look forward for the coming year. Stay strong and don't let what others say get too much to you 
+(pshh tianna pshh). Guess you can call me Newton instead, since I do calculus much and our school is near Newton haha. But the punch 
+line was supposed to be I'm Newton because I would discover gravity just to explain how I fell for you. That sounded better in my head...
+Uhh yea all the best and here's to a fruitful relationship and year! 
+P.S: i still dont like him (just had to put it here ;))`;
+
+// Use either relative paths (recommended for GitHub Pages) or full URLs.
+// Example relative: "photos/pic1.jpg" if you create /photos folder next to index.html
+const PHOTO_URLS = [
+  "photos/ice-skate.jpg",
+  "photos/pic2.jpg",
+  "photos/pic3.jpg",
+  // "https://example.com/your-photo.jpg"
+];
+
+/* 2) OPTIONAL: tweak detection without exposing UI */
+const SENSITIVITY_LEVEL = 6; // 1..10 (higher = more sensitive)
 
 const els = {
   nameSlot: document.getElementById("nameSlot"),
   messagePreviewText: document.getElementById("messagePreviewText"),
+  sidebarMessageText: document.getElementById("sidebarMessageText"),
 
   // mic + cake
   candlesWrap: document.getElementById("candles"),
   btnStart: document.getElementById("btnStart"),
-  btnRelight: document.getElementById("btnRelight"),
-  candleCount: document.getElementById("candleCount"),
-  candleCountVal: document.getElementById("candleCountVal"),
-  sensitivity: document.getElementById("sensitivity"),
-  sensitivityVal: document.getElementById("sensitivityVal"),
   statusText: document.getElementById("statusText"),
   micDot: document.getElementById("micDot"),
   doneText: document.getElementById("doneText"),
@@ -25,18 +46,10 @@ const els = {
   // sidebar
   sidebarToggle: document.getElementById("sidebarToggle"),
   sidebarBody: document.getElementById("sidebarBody"),
-
   tabMessageBtn: document.getElementById("tabMessageBtn"),
   tabPhotosBtn: document.getElementById("tabPhotosBtn"),
   tabMessage: document.getElementById("tabMessage"),
   tabPhotos: document.getElementById("tabPhotos"),
-
-  birthdayMessage: document.getElementById("birthdayMessage"),
-  btnClearMessage: document.getElementById("btnClearMessage"),
-  btnCopyMessage: document.getElementById("btnCopyMessage"),
-
-  photoInput: document.getElementById("photoInput"),
-  btnClearPhotos: document.getElementById("btnClearPhotos"),
   photoGrid: document.getElementById("photoGrid"),
 };
 
@@ -45,14 +58,10 @@ let analyser = null;
 let micStream = null;
 let rafId = null;
 
-// Running estimates for detection
-let baseline = 0.02;     // ambient noise floor
-let blowHoldMs = 0;      // accumulated ms above threshold
+let baseline = 0.02;
+let blowHoldMs = 0;
 let lastTs = 0;
 let extinguished = false;
-
-// Photo object URLs for cleanup
-let photoUrls = [];
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
@@ -68,7 +77,6 @@ function makeCandle(i, n) {
   c.className = "candle";
   c.setAttribute("data-lit", "1");
 
-  // slight variation for visual texture
   const baseH = 54;
   const variance = 16 * Math.sin((i / Math.max(1, n - 1)) * Math.PI);
   c.style.height = `${Math.round(baseH + variance)}px`;
@@ -82,15 +90,6 @@ function makeCandle(i, n) {
 function renderCandles(n) {
   els.candlesWrap.innerHTML = "";
   for (let i = 0; i < n; i++) els.candlesWrap.appendChild(makeCandle(i, n));
-  els.doneText.hidden = true;
-  extinguished = false;
-}
-
-function relightAll() {
-  for (const c of els.candlesWrap.querySelectorAll(".candle")) {
-    c.classList.remove("out");
-    c.setAttribute("data-lit", "1");
-  }
   els.doneText.hidden = true;
   extinguished = false;
 }
@@ -116,10 +115,10 @@ function computeRms(analyserNode) {
 }
 
 function sensitivityMultiplier() {
-  // Slider 1..10 -> multiplier 1.35..0.65 (higher slider => more sensitive)
-  const s = Number(els.sensitivity.value);
-  const t = (s - 1) / 9;          // 0..1
-  return 1.35 - 0.70 * t;         // 1.35 -> 0.65
+  // 1..10 -> 1.35..0.65 (higher number => more sensitive)
+  const s = clamp(Number(SENSITIVITY_LEVEL), 1, 10);
+  const t = (s - 1) / 9;
+  return 1.35 - 0.70 * t;
 }
 
 function tick(ts) {
@@ -131,31 +130,22 @@ function tick(ts) {
 
   const rms = computeRms(analyser);
 
-  // When NOT currently detecting a blow, slowly adapt baseline to room noise
+  // adapt baseline only when not in a blow
   const alpha = (blowHoldMs > 0) ? 0.0 : 0.015;
   baseline = (1 - alpha) * baseline + alpha * rms;
 
   const mult = sensitivityMultiplier();
   const threshold = clamp(baseline * (2.25 * mult), 0.010, 0.26);
 
-  // Require sustained energy above threshold (helps avoid random clicks)
-  if (rms > threshold) {
-    blowHoldMs += dt;
-  } else {
-    blowHoldMs = Math.max(0, blowHoldMs - dt * 1.6);
-  }
+  if (rms > threshold) blowHoldMs += dt;
+  else blowHoldMs = Math.max(0, blowHoldMs - dt * 1.6);
 
   const pct = Math.round(clamp((rms / Math.max(threshold, 1e-6)) * 100, 0, 350));
 
-  if (extinguished) {
-    setStatus("Mic is on. Candles are out.", "on");
-  } else if (rms > threshold) {
-    setStatus(`Mic is on. Blow detected (${pct}%).`, "warn");
-  } else {
-    setStatus(`Mic is on. Listening… (level ${pct}% of blow threshold)`, "on");
-  }
+  if (extinguished) setStatus("Mic is on. Candles are out.", "on");
+  else if (rms > threshold) setStatus(`Mic is on. Blow detected (${pct}%).`, "warn");
+  else setStatus(`Mic is on. Listening…`, "on");
 
-  // Trigger: once, then extinguish all
   if (!extinguished && blowHoldMs >= 170) {
     extinguishAll();
     blowHoldMs = 0;
@@ -185,16 +175,16 @@ async function startMic() {
 
     src.connect(analyser);
 
-    // Quick calibration over ~0.9s
+    // quick calibration (~0.9s)
     baseline = 0.02;
     let samples = 0;
     let acc = 0;
     const start = performance.now();
     while (performance.now() - start < 900) {
-      const rms = computeRms(analyser);
-      acc += rms;
+      const r = computeRms(analyser);
+      acc += r;
       samples++;
-      await new Promise(r => setTimeout(r, 30));
+      await new Promise(rsv => setTimeout(rsv, 30));
     }
     baseline = Math.max(0.008, acc / Math.max(1, samples));
 
@@ -229,7 +219,7 @@ function stopMic() {
   setStatus("Mic is off.");
 }
 
-/* Sidebar: tabs */
+/* Sidebar tabs */
 function setActiveTab(which) {
   const messageActive = which === "message";
 
@@ -243,49 +233,22 @@ function setActiveTab(which) {
   els.tabPhotos.classList.toggle("active", !messageActive);
 }
 
-/* Sidebar: collapse */
 function setSidebarOpen(open) {
   els.sidebarBody.style.display = open ? "block" : "none";
   els.sidebarToggle.textContent = open ? "Hide" : "Show";
   els.sidebarToggle.setAttribute("aria-expanded", String(open));
 }
 
-/* Message: load/save + preview */
-function loadMessage() {
-  const msg = localStorage.getItem(LS_MESSAGE_KEY) || "";
-  els.birthdayMessage.value = msg;
-  updateMessagePreview(msg);
-}
-
-function saveMessage(msg) {
-  localStorage.setItem(LS_MESSAGE_KEY, msg);
-}
-
-function updateMessagePreview(msg) {
-  const trimmed = (msg || "").trim();
-  els.messagePreviewText.textContent = trimmed.length ? trimmed : "Write a message in the sidebar.";
-}
-
-/* Photos: preview thumbnails */
-function clearPhotos() {
-  for (const url of photoUrls) URL.revokeObjectURL(url);
-  photoUrls = [];
+function renderPhotos() {
   els.photoGrid.innerHTML = "";
-  els.photoInput.value = "";
-}
 
-function addPhotos(files) {
-  const list = Array.from(files || []).filter(f => f && f.type && f.type.startsWith("image/"));
-  for (const f of list) {
-    const url = URL.createObjectURL(f);
-    photoUrls.push(url);
-
+  for (const url of PHOTO_URLS) {
     const tile = document.createElement("div");
     tile.className = "thumb";
 
     const img = document.createElement("img");
     img.src = url;
-    img.alt = "Uploaded photograph";
+    img.alt = "Photo";
 
     tile.appendChild(img);
     els.photoGrid.appendChild(tile);
@@ -293,84 +256,33 @@ function addPhotos(files) {
 }
 
 function init() {
-  // Name point
+  // Set name + message (both shown immediately)
   els.nameSlot.textContent = BIRTHDAY_NAME;
+  els.messagePreviewText.textContent = BIRTHDAY_MESSAGE;
+  els.sidebarMessageText.textContent = BIRTHDAY_MESSAGE;
 
-  // Start with 17 candles
-  renderCandles(Number(els.candleCount.value));
-  els.candleCountVal.textContent = els.candleCount.value;
-  els.sensitivityVal.textContent = els.sensitivity.value;
+  // 17 candles fixed
+  renderCandles(17);
 
-  // Default tab
+  // Sidebar defaults
   setActiveTab("message");
   setSidebarOpen(true);
 
-  // Load saved message
-  loadMessage();
+  renderPhotos();
 
-  // Mic controls
+  // Only required “input” for recipient: enabling mic permission
   els.btnStart.addEventListener("click", startMic);
-  els.btnRelight.addEventListener("click", relightAll);
 
-  // Sliders
-  els.candleCount.addEventListener("input", () => {
-    els.candleCountVal.textContent = els.candleCount.value;
-    renderCandles(Number(els.candleCount.value));
-  });
-  els.sensitivity.addEventListener("input", () => {
-    els.sensitivityVal.textContent = els.sensitivity.value;
-  });
-
-  // Tabs
+  // Tabs + sidebar toggle are view controls; remove them if you want absolute minimal UI.
   els.tabMessageBtn.addEventListener("click", () => setActiveTab("message"));
   els.tabPhotosBtn.addEventListener("click", () => setActiveTab("photos"));
 
-  // Sidebar toggle
   els.sidebarToggle.addEventListener("click", () => {
     const isOpen = els.sidebarToggle.getAttribute("aria-expanded") === "true";
     setSidebarOpen(!isOpen);
   });
 
-  // Message events
-  els.birthdayMessage.addEventListener("input", () => {
-    const msg = els.birthdayMessage.value;
-    updateMessagePreview(msg);
-    saveMessage(msg);
-  });
-
-  els.btnClearMessage.addEventListener("click", () => {
-    els.birthdayMessage.value = "";
-    updateMessagePreview("");
-    saveMessage("");
-  });
-
-  els.btnCopyMessage.addEventListener("click", async () => {
-    const msg = els.birthdayMessage.value || "";
-    try {
-      await navigator.clipboard.writeText(msg);
-      // lightweight feedback in status line without disrupting mic
-      const prev = els.statusText.textContent;
-      setStatus("Message copied to clipboard.", analyser ? "on" : "off");
-      setTimeout(() => setStatus(prev, analyser ? "on" : "off"), 1200);
-    } catch {
-      const prev = els.statusText.textContent;
-      setStatus("Copy failed (clipboard permission).", "warn");
-      setTimeout(() => setStatus(prev, analyser ? "on" : "off"), 1400);
-    }
-  });
-
-  // Photos events
-  els.photoInput.addEventListener("change", (e) => {
-    addPhotos(e.target.files);
-  });
-
-  els.btnClearPhotos.addEventListener("click", clearPhotos);
-
-  // Clean up
-  window.addEventListener("beforeunload", () => {
-    stopMic();
-    clearPhotos();
-  });
+  window.addEventListener("beforeunload", stopMic);
 }
 
 init();
