@@ -23,7 +23,6 @@ P.S: i still dont like him (just had to put it here ;))`;
 // Example relative: "photos/pic1.jpg" if you create /photos folder next to index.html
 const PHOTO_URLS = [
   "photos/ice-skate.jpg",
-  "photos/heart-ice.jpg",
   "photos/owndays.jpg",
   "photos/viet.jpg",
   // "https://example.com/your-photo.jpg"
