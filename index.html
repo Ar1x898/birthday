@@ -11,31 +11,17 @@
     <main class="app" aria-label="Birthday cake app">
       <header class="header">
         <p class="kicker">Make a wish</p>
-        <h1>Happy Birthday, <span id="nameSlot">Friend</span>!</h1>
+        <h1>Happy Birthday, <span id="nameSlot">Francesca</span>!</h1>
         <p class="sub">Enable the microphone, then blow toward your mic to extinguish the candles.</p>
 
-        <!-- Live message preview (from sidebar) -->
-        <div class="messagePreview" aria-label="Birthday message preview">
-          <div class="messagePreviewLabel">Birthday message</div>
-          <div id="messagePreviewText" class="messagePreviewText">Write a message in the sidebar.</div>
+        <!-- Message shown immediately; no "Birthday message" label -->
+        <div class="messagePreview" aria-label="Message">
+          <div id="messagePreviewText" class="messagePreviewText"></div>
         </div>
       </header>
 
-      <section class="controls" aria-label="Controls">
-        <button id="btnStart" class="btn primary">Enable Microphone</button>
-        <button id="btnRelight" class="btn">Relight Candles</button>
-
-        <div class="control">
-          <label for="candleCount">Candles</label>
-          <input id="candleCount" type="range" min="1" max="25" value="17" />
-          <span id="candleCountVal" class="pill">17</span>
-        </div>
-
-        <div class="control">
-          <label for="sensitivity">Sensitivity</label>
-          <input id="sensitivity" type="range" min="1" max="10" value="6" />
-          <span id="sensitivityVal" class="pill">6</span>
-        </div>
+      <section class="controls" aria-label="Microphone controls">
+        <button id="btnStart" class="btn primary" type="button">Enable Microphone</button>
 
         <div class="status">
           <span class="dot" id="micDot" aria-hidden="true"></span>
@@ -60,11 +46,11 @@
 
       <footer class="footer">
         <p id="doneText" class="done" hidden>All candles are out. Happy Birthday!</p>
-        <p class="hint">Run via HTTPS or localhost for microphone permissions (avoid file://).</p>
+        <p class="hint">Use HTTPS or localhost for microphone permissions (avoid file://).</p>
       </footer>
     </main>
 
-    <!-- Sidebar -->
+    <!-- Sidebar (view-only; no inputs) -->
     <aside class="sidebar" aria-label="Sidebar">
       <div class="sidebarHeader">
         <div class="sidebarTitle">Customize</div>
@@ -83,32 +69,12 @@
           </button>
         </div>
 
-        <!-- Message Tab -->
         <section id="tabMessage" class="tabPanel active" role="tabpanel" aria-labelledby="tabMessageBtn">
-          <label class="fieldLabel" for="birthdayMessage">Birthday message</label>
-          <textarea id="birthdayMessage" class="textarea" rows="8"
-            placeholder="Type your message here…"></textarea>
-
-          <div class="row">
-            <button id="btnClearMessage" class="btn" type="button">Clear</button>
-            <button id="btnCopyMessage" class="btn" type="button">Copy</button>
-          </div>
-
-          <p class="microHint">Tip: this message is saved locally in your browser (localStorage).</p>
+          <div id="sidebarMessageText" class="sidebarMessageText"></div>
         </section>
 
-        <!-- Photos Tab -->
         <section id="tabPhotos" class="tabPanel" role="tabpanel" aria-labelledby="tabPhotosBtn">
-          <label class="fieldLabel" for="photoInput">Add photographs</label>
-          <input id="photoInput" class="fileInput" type="file" accept="image/*" multiple />
-
-          <div class="row">
-            <button id="btnClearPhotos" class="btn" type="button">Clear photos</button>
-          </div>
-
-          <div id="photoGrid" class="photoGrid" aria-label="Photo thumbnails"></div>
-
-          <p class="microHint">Note: photos are not persisted (refreshing will clear them).</p>
+          <div id="photoGrid" class="photoGrid" aria-label="Photos"></div>
         </section>
       </div>
     </aside>
