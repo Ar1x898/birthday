@@ -7,55 +7,112 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app">
-    <header class="header">
-      <p class="kicker">Make a wish</p>
-      <h1>Happy Birthday, <span id="nameSlot">Friend</span>!</h1>
-      <p class="sub">Enable the microphone, then blow toward your mic to extinguish the candles.</p>
-    </header>
+  <div class="layout">
+    <main class="app" aria-label="Birthday cake app">
+      <header class="header">
+        <p class="kicker">Make a wish</p>
+        <h1>Happy Birthday, <span id="nameSlot">Friend</span>!</h1>
+        <p class="sub">Enable the microphone, then blow toward your mic to extinguish the candles.</p>
 
-    <section class="controls" aria-label="Controls">
-      <button id="btnStart" class="btn primary">Enable Microphone</button>
-      <button id="btnRelight" class="btn">Relight Candles</button>
-
-      <div class="control">
-        <label for="candleCount">Candles</label>
-        <input id="candleCount" type="range" min="1" max="25" value="17" />
-        <span id="candleCountVal" class="pill">17</span>
-      </div>
-
-      <div class="control">
-        <label for="sensitivity">Sensitivity</label>
-        <input id="sensitivity" type="range" min="1" max="10" value="6" />
-        <span id="sensitivityVal" class="pill">6</span>
-      </div>
-
-      <div class="status">
-        <span class="dot" id="micDot" aria-hidden="true"></span>
-        <span id="statusText">Mic is off.</span>
-      </div>
-    </section>
-
-    <section class="stage" aria-label="Cake stage">
-      <div class="cake-wrap">
-        <div id="candles" class="candles" aria-label="Candles"></div>
-
-        <div class="cake" aria-label="Cake">
-          <div class="icing"></div>
-          <div class="drips"></div>
-          <div class="layer layer-top"></div>
-          <div class="layer layer-mid"></div>
-          <div class="layer layer-bot"></div>
-          <div class="plate"></div>
+        <!-- Live message preview (from sidebar) -->
+        <div class="messagePreview" aria-label="Birthday message preview">
+          <div class="messagePreviewLabel">Birthday message</div>
+          <div id="messagePreviewText" class="messagePreviewText">Write a message in the sidebar.</div>
         </div>
-      </div>
-    </section>
+      </header>
 
-    <footer class="footer">
-      <p id="doneText" class="done" hidden>All candles are out. Happy Birthday!</p>
-      <p class="hint">Run via HTTPS or localhost for microphone permissions (avoid file://).</p>
-    </footer>
-  </main>
+      <section class="controls" aria-label="Controls">
+        <button id="btnStart" class="btn primary">Enable Microphone</button>
+        <button id="btnRelight" class="btn">Relight Candles</button>
+
+        <div class="control">
+          <label for="candleCount">Candles</label>
+          <input id="candleCount" type="range" min="1" max="25" value="17" />
+          <span id="candleCountVal" class="pill">17</span>
+        </div>
+
+        <div class="control">
+          <label for="sensitivity">Sensitivity</label>
+          <input id="sensitivity" type="range" min="1" max="10" value="6" />
+          <span id="sensitivityVal" class="pill">6</span>
+        </div>
+
+        <div class="status">
+          <span class="dot" id="micDot" aria-hidden="true"></span>
+          <span id="statusText">Mic is off.</span>
+        </div>
+      </section>
+
+      <section class="stage" aria-label="Cake stage">
+        <div class="cake-wrap">
+          <div id="candles" class="candles" aria-label="Candles"></div>
+
+          <div class="cake" aria-label="Cake">
+            <div class="icing"></div>
+            <div class="drips"></div>
+            <div class="layer layer-top"></div>
+            <div class="layer layer-mid"></div>
+            <div class="layer layer-bot"></div>
+            <div class="plate"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p id="doneText" class="done" hidden>All candles are out. Happy Birthday!</p>
+        <p class="hint">Run via HTTPS or localhost for microphone permissions (avoid file://).</p>
+      </footer>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="sidebarHeader">
+        <div class="sidebarTitle">Customize</div>
+        <button id="sidebarToggle" class="btn tiny" type="button" aria-expanded="true" aria-controls="sidebarBody">
+          Hide
+        </button>
+      </div>
+
+      <div id="sidebarBody" class="sidebarBody">
+        <div class="tabs" role="tablist" aria-label="Sidebar tabs">
+          <button class="tabBtn active" id="tabMessageBtn" role="tab" aria-selected="true" aria-controls="tabMessage" type="button">
+            Message
+          </button>
+          <button class="tabBtn" id="tabPhotosBtn" role="tab" aria-selected="false" aria-controls="tabPhotos" type="button">
+            Photos
+          </button>
+        </div>
+
+        <!-- Message Tab -->
+        <section id="tabMessage" class="tabPanel active" role="tabpanel" aria-labelledby="tabMessageBtn">
+          <label class="fieldLabel" for="birthdayMessage">Birthday message</label>
+          <textarea id="birthdayMessage" class="textarea" rows="8"
+            placeholder="Type your message here…"></textarea>
+
+          <div class="row">
+            <button id="btnClearMessage" class="btn" type="button">Clear</button>
+            <button id="btnCopyMessage" class="btn" type="button">Copy</button>
+          </div>
+
+          <p class="microHint">Tip: this message is saved locally in your browser (localStorage).</p>
+        </section>
+
+        <!-- Photos Tab -->
+        <section id="tabPhotos" class="tabPanel" role="tabpanel" aria-labelledby="tabPhotosBtn">
+          <label class="fieldLabel" for="photoInput">Add photographs</label>
+          <input id="photoInput" class="fileInput" type="file" accept="image/*" multiple />
+
+          <div class="row">
+            <button id="btnClearPhotos" class="btn" type="button">Clear photos</button>
+          </div>
+
+          <div id="photoGrid" class="photoGrid" aria-label="Photo thumbnails"></div>
+
+          <p class="microHint">Note: photos are not persisted (refreshing will clear them).</p>
+        </section>
+      </div>
+    </aside>
+  </div>
 
   <script src="script.js"></script>
 </body>
