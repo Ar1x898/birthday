@@ -1,10 +1,16 @@
 /* Single-blow -> extinguish ALL candles (clean-room implementation).
    Edit the name here:
 */
-const BIRTHDAY_NAME = "Francesca";
+const BIRTHDAY_NAME = "Name Here";
+
+// localStorage key for message
+const LS_MESSAGE_KEY = "cake_blow_birthday_message_v1";
 
 const els = {
   nameSlot: document.getElementById("nameSlot"),
+  messagePreviewText: document.getElementById("messagePreviewText"),
+
+  // mic + cake
   candlesWrap: document.getElementById("candles"),
   btnStart: document.getElementById("btnStart"),
   btnRelight: document.getElementById("btnRelight"),
@@ -15,6 +21,23 @@ const els = {
   statusText: document.getElementById("statusText"),
   micDot: document.getElementById("micDot"),
   doneText: document.getElementById("doneText"),
+
+  // sidebar
+  sidebarToggle: document.getElementById("sidebarToggle"),
+  sidebarBody: document.getElementById("sidebarBody"),
+
+  tabMessageBtn: document.getElementById("tabMessageBtn"),
+  tabPhotosBtn: document.getElementById("tabPhotosBtn"),
+  tabMessage: document.getElementById("tabMessage"),
+  tabPhotos: document.getElementById("tabPhotos"),
+
+  birthdayMessage: document.getElementById("birthdayMessage"),
+  btnClearMessage: document.getElementById("btnClearMessage"),
+  btnCopyMessage: document.getElementById("btnCopyMessage"),
+
+  photoInput: document.getElementById("photoInput"),
+  btnClearPhotos: document.getElementById("btnClearPhotos"),
+  photoGrid: document.getElementById("photoGrid"),
 };
 
 let audioCtx = null;
@@ -27,6 +50,9 @@ let baseline = 0.02;     // ambient noise floor
 let blowHoldMs = 0;      // accumulated ms above threshold
 let lastTs = 0;
 let extinguished = false;
+
+// Photo object URLs for cleanup
+let photoUrls = [];
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
@@ -132,7 +158,6 @@ function tick(ts) {
   // Trigger: once, then extinguish all
   if (!extinguished && blowHoldMs >= 170) {
     extinguishAll();
-    // Optional: reduce sensitivity to prevent immediate re-trigger UI noise
     blowHoldMs = 0;
   }
 
@@ -204,32 +229,148 @@ function stopMic() {
   setStatus("Mic is off.");
 }
 
+/* Sidebar: tabs */
+function setActiveTab(which) {
+  const messageActive = which === "message";
+
+  els.tabMessageBtn.classList.toggle("active", messageActive);
+  els.tabPhotosBtn.classList.toggle("active", !messageActive);
+
+  els.tabMessageBtn.setAttribute("aria-selected", String(messageActive));
+  els.tabPhotosBtn.setAttribute("aria-selected", String(!messageActive));
+
+  els.tabMessage.classList.toggle("active", messageActive);
+  els.tabPhotos.classList.toggle("active", !messageActive);
+}
+
+/* Sidebar: collapse */
+function setSidebarOpen(open) {
+  els.sidebarBody.style.display = open ? "block" : "none";
+  els.sidebarToggle.textContent = open ? "Hide" : "Show";
+  els.sidebarToggle.setAttribute("aria-expanded", String(open));
+}
+
+/* Message: load/save + preview */
+function loadMessage() {
+  const msg = localStorage.getItem(LS_MESSAGE_KEY) || "";
+  els.birthdayMessage.value = msg;
+  updateMessagePreview(msg);
+}
+
+function saveMessage(msg) {
+  localStorage.setItem(LS_MESSAGE_KEY, msg);
+}
+
+function updateMessagePreview(msg) {
+  const trimmed = (msg || "").trim();
+  els.messagePreviewText.textContent = trimmed.length ? trimmed : "Write a message in the sidebar.";
+}
+
+/* Photos: preview thumbnails */
+function clearPhotos() {
+  for (const url of photoUrls) URL.revokeObjectURL(url);
+  photoUrls = [];
+  els.photoGrid.innerHTML = "";
+  els.photoInput.value = "";
+}
+
+function addPhotos(files) {
+  const list = Array.from(files || []).filter(f => f && f.type && f.type.startsWith("image/"));
+  for (const f of list) {
+    const url = URL.createObjectURL(f);
+    photoUrls.push(url);
+
+    const tile = document.createElement("div");
+    tile.className = "thumb";
+
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Uploaded photograph";
+
+    tile.appendChild(img);
+    els.photoGrid.appendChild(tile);
+  }
+}
+
 function init() {
-  // Name point (edit BIRTHDAY_NAME above)
+  // Name point
   els.nameSlot.textContent = BIRTHDAY_NAME;
 
   // Start with 17 candles
-  const initialCandles = Number(els.candleCount.value);
-  renderCandles(initialCandles);
-
+  renderCandles(Number(els.candleCount.value));
   els.candleCountVal.textContent = els.candleCount.value;
   els.sensitivityVal.textContent = els.sensitivity.value;
 
-  els.btnStart.addEventListener("click", startMic);
-  els.btnRelight.addEventListener("click", () => {
-    relightAll();
-  });
+  // Default tab
+  setActiveTab("message");
+  setSidebarOpen(true);
 
+  // Load saved message
+  loadMessage();
+
+  // Mic controls
+  els.btnStart.addEventListener("click", startMic);
+  els.btnRelight.addEventListener("click", relightAll);
+
+  // Sliders
   els.candleCount.addEventListener("input", () => {
     els.candleCountVal.textContent = els.candleCount.value;
     renderCandles(Number(els.candleCount.value));
   });
-
   els.sensitivity.addEventListener("input", () => {
     els.sensitivityVal.textContent = els.sensitivity.value;
   });
 
-  window.addEventListener("beforeunload", stopMic);
+  // Tabs
+  els.tabMessageBtn.addEventListener("click", () => setActiveTab("message"));
+  els.tabPhotosBtn.addEventListener("click", () => setActiveTab("photos"));
+
+  // Sidebar toggle
+  els.sidebarToggle.addEventListener("click", () => {
+    const isOpen = els.sidebarToggle.getAttribute("aria-expanded") === "true";
+    setSidebarOpen(!isOpen);
+  });
+
+  // Message events
+  els.birthdayMessage.addEventListener("input", () => {
+    const msg = els.birthdayMessage.value;
+    updateMessagePreview(msg);
+    saveMessage(msg);
+  });
+
+  els.btnClearMessage.addEventListener("click", () => {
+    els.birthdayMessage.value = "";
+    updateMessagePreview("");
+    saveMessage("");
+  });
+
+  els.btnCopyMessage.addEventListener("click", async () => {
+    const msg = els.birthdayMessage.value || "";
+    try {
+      await navigator.clipboard.writeText(msg);
+      // lightweight feedback in status line without disrupting mic
+      const prev = els.statusText.textContent;
+      setStatus("Message copied to clipboard.", analyser ? "on" : "off");
+      setTimeout(() => setStatus(prev, analyser ? "on" : "off"), 1200);
+    } catch {
+      const prev = els.statusText.textContent;
+      setStatus("Copy failed (clipboard permission).", "warn");
+      setTimeout(() => setStatus(prev, analyser ? "on" : "off"), 1400);
+    }
+  });
+
+  // Photos events
+  els.photoInput.addEventListener("change", (e) => {
+    addPhotos(e.target.files);
+  });
+
+  els.btnClearPhotos.addEventListener("click", clearPhotos);
+
+  // Clean up
+  window.addEventListener("beforeunload", () => {
+    stopMic();
+    clearPhotos();
+  });
 }
 
 init();
