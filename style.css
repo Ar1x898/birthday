@@ -1,18 +1,14 @@
 :root{
   --bg: #0b1020;
   --panel: rgba(255,255,255,0.06);
-  --panel2: rgba(255,255,255,0.08);
   --text: rgba(255,255,255,0.92);
   --muted: rgba(255,255,255,0.68);
-  --accent: #7c5cff;
-  --accent2: #ff4fd8;
   --good: #2ee59d;
   --warn: #ffcc66;
   --shadow: rgba(0,0,0,0.35);
 
   --cake-w: min(560px, 92vw);
   --cake-h: 310px;
-
   --sidebar-w: 340px;
 }
 
@@ -40,9 +36,7 @@ body{
   margin: 0 auto;
 }
 
-.app{
-  padding: 4px 2px 14px;
-}
+.app{ padding: 4px 2px 14px; }
 
 .header{
   text-align: center;
@@ -66,6 +60,7 @@ body{
   line-height: 1.35;
 }
 
+/* Message preview (no label) */
 .messagePreview{
   margin: 14px auto 0;
   max-width: 720px;
@@ -76,18 +71,10 @@ body{
   box-shadow: 0 12px 30px rgba(0,0,0,0.20);
   text-align: left;
 }
-.messagePreviewLabel{
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
 .messagePreviewText{
   white-space: pre-wrap;
-  line-height: 1.35;
-  font-weight: 600;
+  line-height: 1.4;
+  font-weight: 650;
   color: rgba(255,255,255,0.88);
 }
 
@@ -99,9 +86,10 @@ body{
   border-radius: 16px;
   box-shadow: 0 12px 30px var(--shadow);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   align-items: center;
+  max-width: 720px;
 }
 
 .btn{
@@ -112,7 +100,7 @@ body{
   padding: 10px 12px;
   border-radius: 12px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 800;
   transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease;
 }
 .btn:active{ transform: translateY(1px); }
@@ -121,45 +109,12 @@ body{
   border-color: rgba(255,255,255,0.18);
 }
 .btn:disabled{ opacity: 0.6; cursor: not-allowed; }
-
-.btn.tiny{
-  padding: 8px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-.control{
-  display: grid;
-  grid-template-columns: 90px 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-.control label{
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 13px;
-}
-.control input[type="range"]{ width: 100%; }
-
-.pill{
-  font-variant-numeric: tabular-nums;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--text);
-  min-width: 34px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 12px;
-}
+.btn.tiny{ padding: 8px 10px; border-radius: 10px; font-size: 12px; }
 
 .status{
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-top: 4px;
   color: var(--muted);
   font-size: 13px;
 }
@@ -184,7 +139,6 @@ body{
   place-items: center;
   padding: 16px 0 8px;
 }
-
 .cake-wrap{
   width: var(--cake-w);
   height: var(--cake-h);
@@ -192,7 +146,7 @@ body{
   filter: drop-shadow(0 18px 40px rgba(0,0,0,0.35));
 }
 
-/* Candle layout: wraps so 17 looks good */
+/* Candles: wraps nicely for 17 */
 .candles{
   position: absolute;
   top: 6px;
@@ -209,7 +163,6 @@ body{
   flex-wrap: wrap;
   pointer-events: none;
 }
-
 .candle{
   width: 16px;
   height: 62px;
@@ -237,7 +190,6 @@ body{
   background: rgba(20,20,20,0.85);
   border-radius: 2px;
 }
-
 .flame{
   position: absolute;
   top: -30px;
@@ -268,7 +220,6 @@ body{
   width: min(560px, 96%);
   height: 220px;
 }
-
 .layer{
   position: absolute;
   left: 50%;
@@ -359,7 +310,6 @@ body{
   box-shadow: 0 12px 30px var(--shadow);
   overflow: hidden;
 }
-
 .sidebarHeader{
   display: flex;
   justify-content: space-between;
@@ -372,9 +322,7 @@ body{
   font-weight: 900;
   letter-spacing: 0.02em;
 }
-.sidebarBody{
-  padding: 12px;
-}
+.sidebarBody{ padding: 12px; }
 
 .tabs{
   display: grid;
@@ -389,74 +337,29 @@ body{
   padding: 10px 10px;
   border-radius: 12px;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 900;
 }
 .tabBtn.active{
   background: linear-gradient(135deg, rgba(124,92,255,0.65), rgba(255,79,216,0.42));
   border-color: rgba(255,255,255,0.18);
 }
-
 .tabPanel{ display: none; }
 .tabPanel.active{ display: block; }
 
-.fieldLabel{
-  display: block;
-  margin: 8px 0 6px;
-  color: var(--muted);
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.textarea{
-  width: 100%;
-  resize: vertical;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.18);
-  color: var(--text);
-  padding: 10px 10px;
-  outline: none;
-  line-height: 1.35;
-  font-weight: 600;
-}
-.textarea:focus{
-  border-color: rgba(255,255,255,0.22);
-}
-
-.fileInput{
-  width: 100%;
-  padding: 10px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.18);
-  color: var(--text);
-}
-
-.row{
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-.row .btn{
-  flex: 1;
-}
-
-.microHint{
-  margin: 10px 0 0;
-  font-size: 12px;
-  color: rgba(255,255,255,0.60);
-  line-height: 1.35;
+.sidebarMessageText{
+  white-space: pre-wrap;
+  line-height: 1.4;
+  font-weight: 650;
+  color: rgba(255,255,255,0.88);
+  padding: 8px 2px;
 }
 
 .photoGrid{
-  margin-top: 12px;
+  margin-top: 6px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-
 .thumb{
   border-radius: 12px;
   overflow: hidden;
@@ -473,11 +376,6 @@ body{
 
 /* Responsive */
 @media (max-width: 720px){
-  .layout{
-    grid-template-columns: 1fr;
-  }
-  .sidebar{
-    position: relative;
-    top: auto;
-  }
+  .layout{ grid-template-columns: 1fr; }
+  .sidebar{ position: relative; top: auto; }
 }
