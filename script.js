@@ -33,7 +33,6 @@ const SENSITIVITY_LEVEL = 6; // 1..10 (higher = more sensitive)
 
 const els = {
   nameSlot: document.getElementById("nameSlot"),
-  messagePreviewText: document.getElementById("messagePreviewText"),
   sidebarMessageText: document.getElementById("sidebarMessageText"),
 
   // mic + cake
@@ -258,7 +257,6 @@ function renderPhotos() {
 function init() {
   // Set name + message (both shown immediately)
   els.nameSlot.textContent = BIRTHDAY_NAME;
-  els.messagePreviewText.textContent = BIRTHDAY_MESSAGE;
   els.sidebarMessageText.textContent = BIRTHDAY_MESSAGE;
 
   // 17 candles fixed
