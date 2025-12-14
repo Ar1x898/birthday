@@ -16,15 +16,16 @@ is thank you. Thank you for your love and affection, something which I do not de
 It's been a great pleasure and I look forward for the coming year. Stay strong and don't let what others say get too much to you 
 (pshh tianna pshh). Guess you can call me Newton instead, since I do calculus much and our school is near Newton haha. But the punch 
 line was supposed to be I'm Newton because I would discover gravity just to explain how I fell for you. That sounded better in my head...
-Uhh yea all the best and here's to a fruitful relationship and year! 
+Uhh yea all the best and here's to a fruitful relationship and year! Miss you btw. 
 P.S: i still dont like him (just had to put it here ;))`;
 
 // Use either relative paths (recommended for GitHub Pages) or full URLs.
 // Example relative: "photos/pic1.jpg" if you create /photos folder next to index.html
 const PHOTO_URLS = [
   "photos/ice-skate.jpg",
-  "photos/pic2.jpg",
-  "photos/pic3.jpg",
+  "photos/heart-ice.jpg",
+  "photos/owndays.jpg",
+  "photos/viet.jpg",
   // "https://example.com/your-photo.jpg"
 ];
 
