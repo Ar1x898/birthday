@@ -472,7 +472,7 @@ body{
 }
 
 /* Responsive */
-@media (max-width: 1020px){
+@media (max-width: 720px){
   .layout{
     grid-template-columns: 1fr;
   }
