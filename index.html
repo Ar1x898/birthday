@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blow Out the Candles</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <p class="kicker">Make a wish</p>
+      <h1>Happy Birthday, <span id="nameSlot">Friend</span>!</h1>
+      <p class="sub">Enable the microphone, then blow toward your mic to extinguish the candles.</p>
+    </header>
+
+    <section class="controls" aria-label="Controls">
+      <button id="btnStart" class="btn primary">Enable Microphone</button>
+      <button id="btnRelight" class="btn">Relight Candles</button>
+
+      <div class="control">
+        <label for="candleCount">Candles</label>
+        <input id="candleCount" type="range" min="1" max="25" value="17" />
+        <span id="candleCountVal" class="pill">17</span>
+      </div>
+
+      <div class="control">
+        <label for="sensitivity">Sensitivity</label>
+        <input id="sensitivity" type="range" min="1" max="10" value="6" />
+        <span id="sensitivityVal" class="pill">6</span>
+      </div>
+
+      <div class="status">
+        <span class="dot" id="micDot" aria-hidden="true"></span>
+        <span id="statusText">Mic is off.</span>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Cake stage">
+      <div class="cake-wrap">
+        <div id="candles" class="candles" aria-label="Candles"></div>
+
+        <div class="cake" aria-label="Cake">
+          <div class="icing"></div>
+          <div class="drips"></div>
+          <div class="layer layer-top"></div>
+          <div class="layer layer-mid"></div>
+          <div class="layer layer-bot"></div>
+          <div class="plate"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p id="doneText" class="done" hidden>All candles are out. Happy Birthday!</p>
+      <p class="hint">Run via HTTPS or localhost for microphone permissions (avoid file://).</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
